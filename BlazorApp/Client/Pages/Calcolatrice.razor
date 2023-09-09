@@ -1,0 +1,147 @@
+﻿@page "/calcolatrice"
+@inject HttpClient Http
+@inject Views Increment
+@using BlazorApp.Shared;
+
+<h3>Calcolatrice</h3>
+ <Calcoli op="classeoperazioni"
+     FunzioneSomma="Somma" FunzioneDifferenza="Differenza" 
+     FunzioneDivisione="Divisione" FunzioneMoltiplicazione="Moltiplicazione"/>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Valore 1</th>
+            <th scope="col">Operazione</th>
+            <th scope="col">Valore 2</th>
+            <th scope="col">Risultato</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var op in listaOperazioni)
+        {
+            <tr>
+                <td>@op.ID</td>
+                <td>@op.valore1</td>
+                <td>@op.segno</td>
+                <td>@op.valore2</td>
+                <td>@op.risultato</td>
+                <td> <button class="btn btn-primary" @onclick="() => ModificaOperazione(op)">Modifica</button></td>
+                <td> <button class="btn btn-danger">Elimina</button></td>
+                @if (ModificaOp != null && ModificaOp.ID == op.ID)
+                {
+                    <div>
+                        <label>Valore1:</label>
+                        <input type="number" @bind-value="ModificaOp.valore1" />
+                        <label>Segno:</label>
+                        <input type="text" @bind-value="ModificaOp.segno" />
+                        <label>Valore2:</label>
+                        <input type="number" @bind-value="ModificaOp.valore1" />
+                        <button class="btn btn-primary" @onclick="SalvaModifiche">Salva</button>
+                    </div>
+                }
+            </tr>
+        }
+  </tbody>
+</table>
+
+<div>
+    <p> Views: @Increment.Count</p>
+</div>
+@code {
+    private List<Operazioni> listaOperazioni = new List<Operazioni>();
+    private Operazioni classeoperazioni = new Operazioni();
+    private Operazioni ModificaOp = null;
+    private int count = 1;
+
+
+    private async Task CaricaCronologiaOperazioni()
+    {
+        try
+        {
+            listaOperazioni = await Http.GetFromJsonAsync<List<Operazioni>>("calcolatrice/cronologia");
+        }    
+        catch (HttpRequestException ex)
+        {
+            return;
+        }
+    }
+
+    private async Task AddOperazione()
+    {
+        var response = await Http.PostAsJsonAsync("calcolatrice/aggiungi", classeoperazioni);
+
+        if (response.IsSuccessStatusCode)
+        {
+            classeoperazioni = new Operazioni();
+            await CaricaCronologiaOperazioni(); 
+        }
+        else
+        {
+            Console.WriteLine("Errore durante l'aggiunta dell'operazione!");
+        }
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CaricaCronologiaOperazioni();
+    }
+
+    private async Task SalvaModifiche()
+    {
+        var response = await Http.PutAsJsonAsync("calcolatrice/modifica", ModificaOp);
+
+        if (response.IsSuccessStatusCode)
+        {
+            ModificaOp = null;
+            await CaricaCronologiaOperazioni();
+        }
+        else
+        {
+
+            Console.WriteLine("Errore durante l'aggiornamento dell'operazione!");
+        }
+    }
+
+    private void ModificaOperazione(Operazioni operazione)
+    {
+        ModificaOp = operazione;
+    }
+
+    private void Somma()
+    {
+        classeoperazioni.ID = count++;
+        classeoperazioni.segno = "+";
+        classeoperazioni.risultato = classeoperazioni.valore1 + classeoperazioni.valore2;
+        AddOperazione();
+    }
+
+    private void Differenza()
+    {
+        classeoperazioni.ID = count++;
+        classeoperazioni.segno = "-";
+        classeoperazioni.risultato = classeoperazioni.valore1 - classeoperazioni.valore2;
+        AddOperazione();
+    }
+
+    private void Moltiplicazione()
+    {
+        classeoperazioni.ID = count++;
+        classeoperazioni.segno = "*";
+        classeoperazioni.risultato = classeoperazioni.valore1 * classeoperazioni.valore2;
+        AddOperazione();
+    }
+
+    private void Divisione()
+    {
+        classeoperazioni.ID = count++;
+        classeoperazioni.segno = ":";
+        classeoperazioni.risultato = classeoperazioni.valore1 / classeoperazioni.valore2;
+        AddOperazione();
+    }
+}

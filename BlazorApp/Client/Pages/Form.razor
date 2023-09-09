@@ -1,0 +1,30 @@
+﻿@page "/form"
+@using BlazorApp.Shared;
+@inject Views Increment
+<h3>Form</h3>
+
+    <label for="Nome">Nome</label>
+    <input type="text" id="Nome" @bind-value="Nome">   
+    <br>
+
+    <label for="Cognome">Cognome</label>
+    <input type="text" id="Cognome" @bind-value="Cognome">
+    <br>
+
+    <button @onclick="FunctionResult"> Invia </button>
+
+    <p>Utente: @Result</p>
+<div>
+    <p> Views: @Increment.Count</p>
+</div>
+
+@code {
+    private string? Nome;
+    private string? Cognome;
+    private string? Result;
+
+    private void FunctionResult()
+    {
+        Result = Nome + " " + Cognome;
+    }
+}

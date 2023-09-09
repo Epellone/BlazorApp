@@ -1,0 +1,43 @@
+﻿@using BlazorApp.Shared;
+@inject Views Increment
+@using BlazorApp.Shared;
+
+<h3>Calcoli</h3>
+
+<EditForm Model="@op">
+   <DataAnnotationsValidator />
+    <ValidationSummary /> 
+ <div> 
+    <label>Primo numero:
+        <InputNumber @bind-Value="op.valore1" />
+    </label>
+    </div>
+    <div>
+    <label>Secondo numero:
+        <InputNumber @bind-Value="op.valore2" />
+    </label>
+    </div>
+    <button class="btn btn-primary somma-button" @onclick="FunzioneSomma"> + </button>
+    <button class="btn btn-primary somma-button" @onclick="FunzioneDifferenza"> - </button>
+    <button class="btn btn-primary somma-button" @onclick="FunzioneMoltiplicazione"> * </button>
+    <button class="btn btn-primary somma-button" @onclick="FunzioneDivisione"> : </button>
+<p> Risultato: @op.risultato</p>
+</EditForm>
+
+
+@code {
+
+    [Parameter]
+    public Operazioni? op { get; set; } = new Operazioni();
+    [Parameter]
+    public EventCallback Risultato { get; set; }
+    [Parameter]
+    public EventCallback FunzioneSomma { get; set; }    
+    [Parameter]
+    public EventCallback FunzioneDifferenza { get; set; }    
+    [Parameter]
+    public EventCallback FunzioneMoltiplicazione { get; set; }
+    [Parameter]
+    public EventCallback FunzioneDivisione { get; set; }
+
+}
